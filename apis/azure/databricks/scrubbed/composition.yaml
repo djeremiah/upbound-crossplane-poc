@@ -31,9 +31,9 @@ spec:
               deployment-type: crossplane
             managedResourceGroupName: rg-databricks-poc-2 
             customParameters:
-                - virtualNetweorkId: blah
-                  publicSubnetNetworkSecurityGroupAssociationId: blah
-                  privateSubnetNetworkSecurityGroupAssociationId: blah
+                - virtualNetworkId: blah
+                  publicSubnetNetworkSecurityGroupAssociationId: nsg-id # patched
+                  privateSubnetNetworkSecurityGroupAssociationId: nsg-id # patched
                   noPublicIp: true 
                   privateSubnetNameSelector: 
                         matchControllerRef: true
@@ -55,10 +55,14 @@ spec:
           toFieldPath: "spec.resources.name"
         - fromFieldPath: "metadata.labels.mngedResourceGroupName"
           toFieldPath: "spec.forProvider.managedResourceGroupName"
-        - fromFieldPath: "spec.parameters.privateSubnetNetworkSecurityGroupAssociationId"
+        - fromFieldPath: "status.nsg.id"
           toFieldPath: "spec.forProvider.customParameters[0].privateSubnetNetworkSecurityGroupAssociationId"
-        - fromFieldPath: "spec.parameters.publicSubnetNetworkSecurityGroupAssociationId"
+          policy:
+            fromFieldPath: Required
+        - fromFieldPath: "status.nsg.id"
           toFieldPath: "spec.forProvider.customParameters[0].publicSubnetNetworkSecurityGroupAssociationId"
+          policy:
+            fromFieldPath: Required
         - fromFieldPath: "spec.parameters.virtualNetworkId"
           toFieldPath: "spec.forProvider.customParameters[0].virtualNetworkId"
 
@@ -84,7 +88,7 @@ spec:
             resourceGroupName: vnet-rg 
             virtualNetworkName: vnets-001
 
-    - name: subnet-004 
+    - name: subnet-005 
       base:
         apiVersion: network.azure.upbound.io/v1beta1
         kind: Subnet
@@ -165,6 +169,9 @@ spec:
       patches:
         - fromFieldPath: "spec.parameters.databricksNSGName"
           toFieldPath: "metadata.annotations[crossplane.io/external-name]"
+        - type: ToCompositeFieldPath
+          fromFieldPath: status.atProvider
+          toFieldPath: status.nsg
   compositeTypeRef:
     apiVersion: databricks.org/v1alpha1
     kind: FHNDataBricks

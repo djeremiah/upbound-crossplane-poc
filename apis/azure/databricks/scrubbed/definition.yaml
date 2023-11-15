@@ -27,10 +27,6 @@ spec:
                     type: string 
                   virtualNetworkId:
                     type: string 
-                  privateSubnetNetworkSecurityGroupAssociationId:
-                    type: string 
-                  publicSubnetNetworkSecurityGroupAssociationId:
-                    type: string 
                   resourceGroupName:
                     type: string 
                   mngedResourceGroupName:
@@ -40,7 +36,12 @@ spec:
                   - resourceGroupName 
                   - mngedResourceGroupName 
                   - virtualNetworkId
-                  - privateSubnetNetworkSecurityGroupAssociationId
-                  - publicSubnetNetworkSecurityGroupAssociationId
             required:
               - parameters
+          status:
+            type: object
+            properties:
+              nsg:
+                description: Network SecurityGroup information
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
